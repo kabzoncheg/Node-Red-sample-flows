@@ -1,0 +1,842 @@
+[
+    {
+        "id": "bfd6a16d.7528f8",
+        "type": "tab",
+        "label": "MQTT reaction test flow",
+        "disabled": false,
+        "info": "Testing varius rection for different MQTT evenets"
+    },
+    {
+        "id": "28c090b8.1a1fc8",
+        "type": "mqtt in",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "topic": "application/#",
+        "qos": "0",
+        "broker": "25a8aed7.5ad9ca",
+        "x": 264,
+        "y": 234,
+        "wires": [
+            [
+                "fe964c04.33d548",
+                "be1b2f7d.a37a5"
+            ]
+        ]
+    },
+    {
+        "id": "fe964c04.33d548",
+        "type": "switch",
+        "z": "bfd6a16d.7528f8",
+        "name": "switch by sensor ID",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "\"devEUI\":\"029a43bc029a43bc\"",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "\"devEUI\":\"21d5fe1121d5fe11\"",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "\"devEUI\":\"0000000000005132\"",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 3,
+        "x": 450,
+        "y": 234,
+        "wires": [
+            [
+                "d9a4f22f.56f828"
+            ],
+            [
+                "cc9f3837.2825b8"
+            ],
+            [
+                "47390c8.9f39274"
+            ]
+        ]
+    },
+    {
+        "id": "d9a4f22f.56f828",
+        "type": "switch",
+        "z": "bfd6a16d.7528f8",
+        "name": "open/close switch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "\"data\":\"STAx\"",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "\"data\":\"STAw\"",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 722,
+        "y": 116,
+        "wires": [
+            [
+                "e55c2054.8f7cf"
+            ],
+            [
+                "b33a70cc.49b75"
+            ]
+        ]
+    },
+    {
+        "id": "e55c2054.8f7cf",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "set open",
+        "func": "global.set(\"door_status\",\"open\");\nvar newMsg = {payload: {door_status: 1}};\nreturn newMsg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 912,
+        "y": 76,
+        "wires": [
+            [
+                "f8ffaee6.e6c8f",
+                "892661a0.9a72e"
+            ]
+        ]
+    },
+    {
+        "id": "b33a70cc.49b75",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "set close",
+        "func": "global.set(\"door_status\",\"close\");\nvar newMsg = {payload: {door_status: 0}};\nreturn newMsg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 915,
+        "y": 160,
+        "wires": [
+            [
+                "892661a0.9a72e"
+            ]
+        ]
+    },
+    {
+        "id": "854fb999.2b195",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "check door status",
+        "func": "var x = global.get(\"door_status\");\nif (x === \"open\") {\n    NewMsg = \"Door is opened for too long!!!\";\n   return msg;\n} else {\n   return null;\n}",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 1266,
+        "y": 46,
+        "wires": [
+            [
+                "a34dc295.a04b98"
+            ]
+        ]
+    },
+    {
+        "id": "f8ffaee6.e6c8f",
+        "type": "delay",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 1076,
+        "y": 46,
+        "wires": [
+            [
+                "854fb999.2b195"
+            ]
+        ]
+    },
+    {
+        "id": "da4c58d9.70288",
+        "type": "e-mail",
+        "z": "bfd6a16d.7528f8",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "name": "ilya.petrukhin@orange.com",
+        "dname": "send email",
+        "x": 1631,
+        "y": 46,
+        "wires": []
+    },
+    {
+        "id": "be1b2f7d.a37a5",
+        "type": "debug",
+        "z": "bfd6a16d.7528f8",
+        "name": "all MQTT messages",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 516.77783203125,
+        "y": 77.4444351196289,
+        "wires": []
+    },
+    {
+        "id": "a34dc295.a04b98",
+        "type": "change",
+        "z": "bfd6a16d.7528f8",
+        "name": "email content",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Door1 is opened for more than 20 seconds.  Run for your life!!!",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "door opened alarm",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1456,
+        "y": 46,
+        "wires": [
+            [
+                "da4c58d9.70288"
+            ]
+        ]
+    },
+    {
+        "id": "cc9f3837.2825b8",
+        "type": "json",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "pretty": true,
+        "x": 688,
+        "y": 361,
+        "wires": [
+            [
+                "35a238f6.edd88"
+            ]
+        ]
+    },
+    {
+        "id": "35a238f6.edd88",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "get data",
+        "func": "var newMsg = { payload: msg.payload.data };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 840,
+        "y": 361,
+        "wires": [
+            [
+                "2c401ceb.db9fc4"
+            ]
+        ]
+    },
+    {
+        "id": "2c401ceb.db9fc4",
+        "type": "base64",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "x": 1000,
+        "y": 361,
+        "wires": [
+            [
+                "ff64cc7.338493"
+            ]
+        ]
+    },
+    {
+        "id": "ff64cc7.338493",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "extract temp and humidity",
+        "func": "var num1 = msg.payload[2], \n    num2 = msg.payload[3];\n    num3 = msg.payload[4];\n    num4 = msg.payload[5];\n    hum_hex= num1.toString(16) + num2.toString(16);\n    temp_hex= num3.toString(16) + num4.toString(16);\n    hum = 0;\n    temp = 0;\n    date = new Date();\n\nif (hum_hex.length > 2){\n    hum = (parseInt(hum_hex, 16))/10;\n}else{\n    hum = parseInt(hum_hex, 16);\n}\n\nif (temp_hex.length === 4){\n        temp = 0 - (parseInt(temp_hex.slice(0, 2), 16))/10;    \n    }else if (temp_hex.length === 3){\n        temp = (parseInt(temp_hex, 16))/10; \n    }else{\n        temp = parseInt(temp_hex, 16);\n}\n        \nvar newMsg = { payload: {temperature: temp,\n                humidity: hum, date: date} };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1220,
+        "y": 361,
+        "wires": [
+            [
+                "b155bcc4.eedf28",
+                "704d6a85.75d584",
+                "b5f33f6a.a51d4"
+            ]
+        ]
+    },
+    {
+        "id": "b155bcc4.eedf28",
+        "type": "switch",
+        "z": "bfd6a16d.7528f8",
+        "name": "temp > 26 switch",
+        "property": "payload.temperature",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "26",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 1479,
+        "y": 361,
+        "wires": [
+            [
+                "f05d53bb.e0656"
+            ]
+        ]
+    },
+    {
+        "id": "f05d53bb.e0656",
+        "type": "e-mail",
+        "z": "bfd6a16d.7528f8",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "name": "ilya.petrukhin@orange.com",
+        "dname": "send email",
+        "x": 1674,
+        "y": 361,
+        "wires": []
+    },
+    {
+        "id": "892661a0.9a72e",
+        "type": "ui_template",
+        "z": "bfd6a16d.7528f8",
+        "group": "deb39041.a8bc18",
+        "name": "door status",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css\">\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script> \n\n<div style=\"height: 250px;\">\n    <div class=\"panel panel-success\">\n      <div class=\"panel-heading\">\n        <h3 class=\"panel-title\">Открытые двери</h3>\n      </div>\n      <div class=\"panel-body\"  id=\"pnl1\">\n        <br/>\n      </div>\n    </div>\n    <div class=\"panel panel-warning\">\n      <div class=\"panel-heading\">\n        <h3 class=\"panel-title\">Закрытые двери</h3>\n      </div>\n      <div class=\"panel-body\"  id=\"pnl2\">\n        <br/>\n      </div>\n    </div>\n</div>\n\n<script>\n   (function(scope) {\n        var pnl1 = document.getElementById(\"pnl1\");\n        var pnl2 = document.getElementById(\"pnl2\");\n        \n        scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n            if (msg) {\n                if (msg.payload.door_status === 1) {\n                    pnl1.textContent = \"door#001\";\n                    pnl2.textContent = \"\";\n                    pnl2. innerHTML = \"<br/>\";\n                }else{\n                    pnl2.textContent = \"door#001\";\n                    pnl1.textContent = \"\";\n                    pnl1. innerHTML = \"<br/>\";\n                }\n            };\n         }); //close out the watch \n    })(scope); \n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 1115,
+        "y": 116,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "704d6a85.75d584",
+        "type": "ui_template",
+        "z": "bfd6a16d.7528f8",
+        "group": "d8fcdfb2.76928",
+        "name": "temp_hum radial",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"donut_1\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\">Температура °C и влажность %</h3>\n\n<script>\n\n(function(scope) {\n var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n if (!window.Morris) return;\n clearInterval(timer);\n \n var myData;\n \n var myDonut = Morris.Donut({\n element: 'donut_1',\n colors: [\"#b3573e\", \"#d07046\"],\n data: [\n {label: \"Температура\", value: 0 },\n {label: \"Влажность\", value: 0 }\n ]\n });\n \n scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n if (msg) {\n \n myData = msg;\n myDonut.setData([\n {label: \"Температура\", value: myData.payload.temperature },\n {label: \"Влажность\", value: myData.payload.humidity }\n ])\n };\n }); //close out the watch \n }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 1518,
+        "y": 293,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "600d488a.50de58",
+        "type": "ui_template",
+        "z": "bfd6a16d.7528f8",
+        "group": "b7487351.381f68",
+        "name": "temp_hum graph",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"line_1\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\">Изменения температуры °C и влажности %</h3>\n\n<script>\n\n(function(scope) {\n     var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n         if (!window.Morris) return;\n         clearInterval(timer);\n         var myData;\n         var dataBuffer = [];\n         var myjson;\n         $.getJSON(\"http://127.0.0.1:1880/get_eco\", function(json){\n            myjson = json;\n         });\n     \n         var myLine = Morris.Line({\n                     element: 'line_1',\n                     lineColors: [\"#b3573e\", \"#d07046\"],\n                     resize: true,\n                     hideHover: true,\n                     xkey: 'date',\n                     ykeys: ['temp', 'hum'],\n                     ymin: 0,\n                     ymax: 40,\n                     labels: ['Температура', 'Влажность'],\n                     xLabels: \"hour\",\n                     data: [{date: 0, temp: 0, hum: 0 }]\n                     });\n         scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n         if (msg) {\n             myData = msg;\n             if (dataBuffer.length > 20) {\n                dataBuffer = dataBuffer.slice(dataBuffer.length - 20)\n             }\n             dataBuffer.push({date: myData.payload.date,\n                            temp: myData.payload.temperature,\n                            hum: myData.payload.humidity\n             });\n         myLine.setData(dataBuffer);\n         };\n         }); //close out the watch \n     }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 1812,
+        "y": 191,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "47390c8.9f39274",
+        "type": "json",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "pretty": true,
+        "x": 689,
+        "y": 446,
+        "wires": [
+            [
+                "1a8accc3.16328b"
+            ]
+        ]
+    },
+    {
+        "id": "1a8accc3.16328b",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "get data",
+        "func": "var newMsg = { payload: msg.payload.data };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 840,
+        "y": 446,
+        "wires": [
+            [
+                "3b42ac99.756dd4"
+            ]
+        ]
+    },
+    {
+        "id": "3b42ac99.756dd4",
+        "type": "base64",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "x": 1000,
+        "y": 446,
+        "wires": [
+            [
+                "170a3180.ff034e"
+            ]
+        ]
+    },
+    {
+        "id": "170a3180.ff034e",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "extract counters val",
+        "func": "var pc1_val = msg.payload[1]*100000 + msg.payload[2]*10000 + msg.payload[3]*1000 + msg.payload[4];\n    pc2_val = msg.payload[5]*100000 + msg.payload[6]*10000 + msg.payload[7]*1000 + msg.payload[8];\n    date = new Date();\n\n\n        \nvar newMsg = { payload: {counter1: pc1_val,\n                counter2: pc2_val, date: date} };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1199,
+        "y": 446,
+        "wires": [
+            [
+                "a18ab48a.1b18",
+                "20a5a2e6.358c56"
+            ]
+        ]
+    },
+    {
+        "id": "a18ab48a.1b18",
+        "type": "ui_template",
+        "z": "bfd6a16d.7528f8",
+        "group": "d8fcdfb2.76928",
+        "name": "pulse_cntr radial",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"donut_2\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\">Расход воды м³</h3>\n\n<script>\n\n(function(scope) {\n var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n if (!window.Morris) return;\n clearInterval(timer);\n \n var myData;\n \n var myDonut = Morris.Donut({\n element: 'donut_2',\n colors: [\"#f17922\", \"#ebbe7d\"],\n formatter: function(input) {return input + \" м³\"},\n data: [\n {label: \"Счетчик №1\", counter1: 0 },\n {label: \"Счетчик №2\", counter2: 0 }\n ]\n });\n \n scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n if (msg) {\n \n myData = msg;\n myDonut.setData([\n {label: \"Счетчик №1\", value: myData.payload.counter1 },\n {label: \"Счетчик №2\", value: myData.payload.counter2 }\n ])\n };\n }); //close out the watch \n }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 1500.7499389648438,
+        "y": 446.25,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e0a206be.f60768",
+        "type": "ui_template",
+        "z": "bfd6a16d.7528f8",
+        "group": "b7487351.381f68",
+        "name": "pls_cntr_graph",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"line_2\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\">Изменения расхода воды м³</h3>\n\n<script>\n\n(function(scope) {\n     var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n         if (!window.Morris) return;\n         clearInterval(timer);\n         var myData;\n         var dataBuffer = [];\n         \n         var myjson;\n            $.getJSON(\"http://127.0.0.1:1880/get_cntrs\", function(json){\n            myjson = json;\n         });\n     \n         var myLine = Morris.Line({\n                     element: 'line_2',\n                     lineColors: [\"#f17922\", \"#ebbe7d\"],\n                     resize: true,\n                     hideHover: true,\n                     postUnits: ' м³',\n                     xkey: 'date',\n                     ykeys: ['counter1', 'counter2'],\n                     labels: ['Счетчик №1', 'Счетчик №2'],\n                     xLabels: \"hour\",\n                     data: [{date: 0, counter1: 0, counter2: 0 }]\n                     });\n         scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n         if (msg) {\n             myData = msg;\n             if (dataBuffer.length > 20) {\n                dataBuffer = dataBuffer.slice(dataBuffer.length - 20)\n             }\n             dataBuffer.push({date: myData.payload.date,\n                            counter1: myData.payload.counter1,\n                            counter2: myData.payload.counter2\n             });\n         myLine.setData(dataBuffer);\n         };\n         }); //close out the watch \n     }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 1803.2501220703125,
+        "y": 567.7500610351562,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b5f33f6a.a51d4",
+        "type": "moment",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "topic": "",
+        "input": "payload.date",
+        "inputType": "msg",
+        "inTz": "Asia/Riyadh",
+        "adjAmount": 0,
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "",
+        "locale": "ru_RU",
+        "output": "payload.date",
+        "outputType": "msg",
+        "outTz": "Asia/Riyadh",
+        "x": 1527,
+        "y": 238,
+        "wires": [
+            [
+                "600d488a.50de58",
+                "ff4ae12.40c94a"
+            ]
+        ]
+    },
+    {
+        "id": "ff4ae12.40c94a",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "SQL generator",
+        "func": "var newMsg = { \"topic\": \"INSERT INTO ECO VALUES (\" + msg.payload.temperature + \", \" + msg.payload.humidity + \", '\"+ msg.payload.date +\"')\" };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1760,
+        "y": 291,
+        "wires": [
+            [
+                "b87ed192.96f608"
+            ]
+        ]
+    },
+    {
+        "id": "b87ed192.96f608",
+        "type": "sqlite",
+        "z": "bfd6a16d.7528f8",
+        "mydb": "4a9cc685.c98a2",
+        "name": "SQLlite",
+        "x": 1940,
+        "y": 291,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e0d700d1.c65f2",
+        "type": "change",
+        "z": "bfd6a16d.7528f8",
+        "name": "SQL generator",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "select * from (select * from ECO order by ROWID desc limit 20)",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1146.0001220703125,
+        "y": 302,
+        "wires": [
+            [
+                "ffd6e320.5327e8"
+            ]
+        ]
+    },
+    {
+        "id": "ffd6e320.5327e8",
+        "type": "sqlite",
+        "z": "bfd6a16d.7528f8",
+        "mydb": "4a9cc685.c98a2",
+        "name": "SQLlite",
+        "x": 1361.41650390625,
+        "y": 190.66665649414062,
+        "wires": [
+            [
+                "b7838bec.3f5ae8",
+                "66e0419b.13c98"
+            ]
+        ]
+    },
+    {
+        "id": "b7838bec.3f5ae8",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "Query serializer",
+        "func": "var data = msg.payload;\nvar msgArray = [];\nfor (i = 0, len = data.length; i < len; i++) {\n    newMsg = {\"payload\": data[i]};\n    msgArray.push(newMsg);\n} \nreturn [ msgArray ];",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1547.5001220703125,
+        "y": 190.66665649414062,
+        "wires": [
+            [
+                "600d488a.50de58",
+                "704d6a85.75d584"
+            ]
+        ]
+    },
+    {
+        "id": "20a5a2e6.358c56",
+        "type": "moment",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "topic": "",
+        "input": "payload.date",
+        "inputType": "msg",
+        "inTz": "Asia/Riyadh",
+        "adjAmount": 0,
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "",
+        "locale": "ru_RU",
+        "output": "payload.date",
+        "outputType": "msg",
+        "outTz": "Asia/Riyadh",
+        "x": 1505,
+        "y": 509.5,
+        "wires": [
+            [
+                "24ea37fa.f9685",
+                "e0a206be.f60768"
+            ]
+        ]
+    },
+    {
+        "id": "24ea37fa.f9685",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "SQL generator",
+        "func": "var newMsg = { \"topic\": \"INSERT INTO CNTR VALUES (\" + msg.payload.counter1 + \", \" + msg.payload.counter2 + \", '\"+ msg.payload.date +\"')\" };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1747.5,
+        "y": 509,
+        "wires": [
+            [
+                "b87ed192.96f608"
+            ]
+        ]
+    },
+    {
+        "id": "c3d25604.e16628",
+        "type": "change",
+        "z": "bfd6a16d.7528f8",
+        "name": "SQL generator",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "select * from (select * from CNTR order by ROWID desc limit 20)",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1152.5,
+        "y": 568.75,
+        "wires": [
+            [
+                "4871b756.9cda08"
+            ]
+        ]
+    },
+    {
+        "id": "4871b756.9cda08",
+        "type": "sqlite",
+        "z": "bfd6a16d.7528f8",
+        "mydb": "4a9cc685.c98a2",
+        "name": "SQLlite",
+        "x": 1371.1663818359375,
+        "y": 568.6666870117188,
+        "wires": [
+            [
+                "8193d7e7.0ecfd8",
+                "274a814.16544fe"
+            ]
+        ]
+    },
+    {
+        "id": "8193d7e7.0ecfd8",
+        "type": "function",
+        "z": "bfd6a16d.7528f8",
+        "name": "Query serializer",
+        "func": "var data = msg.payload;\nvar msgArray = [];\nfor (i = 0, len = data.length; i < len; i++) {\n    newMsg = {\"payload\": data[i]};\n    msgArray.push(newMsg);\n} \nreturn [ msgArray ];",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1550.5,
+        "y": 568.4166564941406,
+        "wires": [
+            [
+                "e0a206be.f60768",
+                "a18ab48a.1b18"
+            ]
+        ]
+    },
+    {
+        "id": "1da7c90a.2015ff",
+        "type": "http in",
+        "z": "bfd6a16d.7528f8",
+        "name": "/get_eco",
+        "url": "/get_eco",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 932.2222900390625,
+        "y": 301.22222900390625,
+        "wires": [
+            [
+                "e0d700d1.c65f2"
+            ]
+        ]
+    },
+    {
+        "id": "66e0419b.13c98",
+        "type": "json",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "pretty": false,
+        "x": 1519.666748046875,
+        "y": 134.4444580078125,
+        "wires": [
+            [
+                "c32e7103.d5bf3"
+            ]
+        ]
+    },
+    {
+        "id": "c32e7103.d5bf3",
+        "type": "http response",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1694.9849243164062,
+        "y": 133.989990234375,
+        "wires": []
+    },
+    {
+        "id": "274a814.16544fe",
+        "type": "json",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "pretty": false,
+        "x": 1536.33349609375,
+        "y": 623.3333740234375,
+        "wires": [
+            [
+                "e8ced10a.622e5"
+            ]
+        ]
+    },
+    {
+        "id": "e8ced10a.622e5",
+        "type": "http response",
+        "z": "bfd6a16d.7528f8",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1711.6516723632812,
+        "y": 622.87890625,
+        "wires": []
+    },
+    {
+        "id": "ccaceb0a.2e9a28",
+        "type": "http in",
+        "z": "bfd6a16d.7528f8",
+        "name": "/get_cntrs",
+        "url": "/get_cntrs",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 937.77783203125,
+        "y": 569.2222290039062,
+        "wires": [
+            [
+                "c3d25604.e16628"
+            ]
+        ]
+    },
+    {
+        "id": "25a8aed7.5ad9ca",
+        "type": "mqtt-broker",
+        "z": "",
+        "broker": "192.168.88.251",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "deb39041.a8bc18",
+        "type": "ui_group",
+        "z": "",
+        "name": "Door status",
+        "tab": "537f12fc.fec05c",
+        "order": 3,
+        "disp": false,
+        "width": "6"
+    },
+    {
+        "id": "d8fcdfb2.76928",
+        "type": "ui_group",
+        "z": "",
+        "name": "Radial",
+        "tab": "537f12fc.fec05c",
+        "order": 1,
+        "disp": false,
+        "width": "8"
+    },
+    {
+        "id": "b7487351.381f68",
+        "type": "ui_group",
+        "z": "",
+        "name": "Graph",
+        "tab": "537f12fc.fec05c",
+        "order": 2,
+        "disp": false,
+        "width": "12"
+    },
+    {
+        "id": "4a9cc685.c98a2",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "C:\\SQLlite\\NodeRed.db"
+    },
+    {
+        "id": "537f12fc.fec05c",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Orange Dashboard",
+        "icon": "dashboard",
+        "order": 1
+    }
+]

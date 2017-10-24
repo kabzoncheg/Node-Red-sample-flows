@@ -1,0 +1,326 @@
+[
+    {
+        "id": "f3a9ff5d.b410c8",
+        "type": "tab",
+        "label": "Testing WEB-UI",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "8818256f.c5ac08",
+        "type": "inject",
+        "z": "f3a9ff5d.b410c8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "x": 162.76666259765625,
+        "y": 189.01666259765625,
+        "wires": [
+            [
+                "ffc3a811.df83a"
+            ]
+        ]
+    },
+    {
+        "id": "ffc3a811.df83a",
+        "type": "function",
+        "z": "f3a9ff5d.b410c8",
+        "name": "Data generator",
+        "func": "seed = Math.round(Math.random()*1000);\nprm = Math.random()\n\nmsg.payload = {\n    gasPct:seed,\n    windPct:seed/4,\n    coalPct:seed/10,\n    oilPct:seed/8,\n    nucPct:seed/2,\n    date: new Date(),\n    door_status: prm\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 364.76666259765625,
+        "y": 189.01666259765625,
+        "wires": [
+            [
+                "2a252ebb.f7a262",
+                "22796495.0d9294",
+                "77c1f84f.eee39",
+                "7bf57457.3759e4",
+                "2a9be27.b9f019e"
+            ]
+        ]
+    },
+    {
+        "id": "2a252ebb.f7a262",
+        "type": "ui_template",
+        "z": "f3a9ff5d.b410c8",
+        "group": "b543927c.9d1588",
+        "name": "Donut diagram",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"donut_1\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\">Current power generation</h3>\n\n<script>\n\n(function(scope) {\n var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n if (!window.Morris) return;\n clearInterval(timer);\n \n var myData;\n \n var myDonut = Morris.Donut({\n element: 'donut_1',\n colors: [\"#b3573e\", \"#d07046\", \"#f17922\", \"#ebbe7d\", \"#b6aea1\"],\n formatter: function(input) {return input + \" GW\"},\n data: [\n {label: \"Coal\", value: 0 },\n {label: \"Gas\", value: 0 },\n {label: \"Nuclear\", value: 0 },\n {label: \"Oil\", value: 0 },\n {label: \"Wind\", value: 0 }\n ]\n });\n \n scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n if (msg) {\n \n myData = msg;\n myDonut.setData([\n {label: \"Coal\", value: myData.payload.coalPct },\n {label: \"Gas\", value: myData.payload.gasPct },\n {label: \"Nuclear\", value: myData.payload.nucPct },\n {label: \"Oil\", value: myData.payload.oilPct },\n {label: \"Wind\", value: myData.payload.windPct }\n ])\n };\n }); //close out the watch \n }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 769.2666015625,
+        "y": 187.18331909179688,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "77c1f84f.eee39",
+        "type": "debug",
+        "z": "f3a9ff5d.b410c8",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 763.7666015625,
+        "y": 120.25,
+        "wires": []
+    },
+    {
+        "id": "6b0c132b.68ad74",
+        "type": "ui_template",
+        "z": "f3a9ff5d.b410c8",
+        "group": "52ce17db.21351",
+        "name": "Line Chart",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css\">\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js\"></script>\n <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n <script src=\"https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js\"></script>\n\n<div id=\"line_1\" style=\"height: 250px;\"></div>\n\n<h3 align=\"center\" id = \"test\">Power generation history</h3>\n\n<script>\n\n(function(scope) {\n var timer = setInterval(function() { //check that the Morris libs are loaded, if not wait\n if (!window.Morris) return;\n clearInterval(timer);\n \n var myData;\n var dataBuffer = [];\n \n var myjson;\n $.getJSON(\"http://127.0.0.1:1880/db_data\", function(json){\n    myjson = json;\n });\n\n \n var myLine = Morris.Line({\n element: 'line_1',\n lineColors: [\"#b3573e\", \"#d07046\", \"#f17922\", \"#ebbe7d\", \"#b6aea1\"],\n resize: true,\n hideHover: true,\n xkey: 'time',\n ykeys: ['coal', 'gas', 'nuclear', 'oil', 'wind'],\n ymin: 0,\n labels: ['Coal', 'Gas', 'Nuclear', 'Oil', 'Wind'],\n xLabels: \"minute\",\n postUnits: ' GW',\n data: [{time: 0, value: 0 },\n ]\n });\n \n scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n if (msg) {\n    myData=msg;\n if (dataBuffer.length > 20) {\n    dataBuffer = dataBuffer.slice(dataBuffer.length - 20)\n }\n dataBuffer.push({time: myData.payload.date,\n                coal: myData.payload.coalPct,\n                gas: myData.payload.gasPct,\n                nuclear: myData.payload.nucPct,\n                oil: myData.payload.oilPct,\n                wind: myData.payload.windPct\n });\n myLine.setData(dataBuffer);\n };\n }); //close out the watch \n }, 100); // close out the setInterval \n})(scope);\n\n\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 761.5,
+        "y": 256,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22796495.0d9294",
+        "type": "ui_template",
+        "z": "f3a9ff5d.b410c8",
+        "group": "1462c62f.799e42",
+        "name": "Text display",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css\">\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script> \n\n<div style=\"height: 250px;\">\n    <div class=\"panel panel-success\">\n      <div class=\"panel-heading\">\n        <h3 class=\"panel-title\">Log info</h3>\n      </div>\n      <div class=\"panel-body\" id=\"pnl1\">\n          <br/>\n      </div>\n    </div>\n    <div class=\"panel panel-warning\">\n      <div class=\"panel-heading\">\n        <h3 class=\"panel-title\">Log error</h3>\n      </div>\n      <div class=\"panel-body\" id=\"pnl2\">\n          <br/>\n      </div>\n    </div>\n    <h3 class=\"ng-scope\" align=\"center\"></h3>\n</div>\n\n<script>\n   (function(scope) {\n        var pnl1 = document.getElementById(\"pnl1\");\n        var pnl2 = document.getElementById(\"pnl2\");\n        scope.$watch('msg', function (msg) { //watch for an incoming NR msg\n            if (msg) {\n                if (msg.payload.door_status > 0.5) {\n                    pnl1.textContent = msg.payload.door_status;\n                    pnl2.textContent = \"\";\n                    pnl2. innerHTML = \"<br/>\";\n                }else{\n                    pnl2.textContent = msg.payload.door_status;\n                    pnl1.textContent = \"\";\n                    pnl1. innerHTML = \"<br/>\";\n                }\n            };\n         }); //close out the watch \n    })(scope); \n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 761,
+        "y": 312,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "879e7063.d9d138",
+        "type": "sqlite",
+        "z": "f3a9ff5d.b410c8",
+        "mydb": "4a9cc685.c98a2",
+        "name": "SQLlite",
+        "x": 550.5,
+        "y": 379,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "35898b.51c37676",
+        "type": "function",
+        "z": "f3a9ff5d.b410c8",
+        "name": "SQL generator",
+        "func": "var newMsg = { \"topic\": \"INSERT INTO RES VALUES (\" + msg.payload.gasPct + \", \" + msg.payload.oilPct + \", \" + msg.payload.coalPct + \", \" + msg.payload.nucPct + \", \" + msg.payload.windPct + \", \" + msg.payload.door_status + \", '\"+ msg.payload.date +\"')\" };\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 370.5,
+        "y": 379,
+        "wires": [
+            [
+                "879e7063.d9d138"
+            ]
+        ]
+    },
+    {
+        "id": "7bf57457.3759e4",
+        "type": "moment",
+        "z": "f3a9ff5d.b410c8",
+        "name": "",
+        "topic": "",
+        "input": "payload.date",
+        "inputType": "msg",
+        "inTz": "Asia/Riyadh",
+        "adjAmount": 0,
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "",
+        "locale": "ru_RU",
+        "output": "payload.date",
+        "outputType": "msg",
+        "outTz": "Asia/Riyadh",
+        "x": 352.5,
+        "y": 281,
+        "wires": [
+            [
+                "6b0c132b.68ad74",
+                "35898b.51c37676"
+            ]
+        ]
+    },
+    {
+        "id": "472ead21.536d5c",
+        "type": "http in",
+        "z": "f3a9ff5d.b410c8",
+        "name": "HTTP GET",
+        "url": "/db_data",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 122,
+        "y": 554,
+        "wires": [
+            [
+                "32c53ee1.71e61a"
+            ]
+        ]
+    },
+    {
+        "id": "8b82b1c4.e674a",
+        "type": "sqlite",
+        "z": "f3a9ff5d.b410c8",
+        "mydb": "4a9cc685.c98a2",
+        "name": "SQLlite",
+        "x": 490,
+        "y": 554,
+        "wires": [
+            [
+                "437ae7a2.4fcc88",
+                "f2bf1064.840ad"
+            ]
+        ]
+    },
+    {
+        "id": "6a48d6fd.1264e",
+        "type": "http response",
+        "z": "f3a9ff5d.b410c8",
+        "name": "",
+        "statusCode": "200",
+        "headers": {
+            "Access-Control-Allow-Origin": "http://127.0.0.1:1880/db_data"
+        },
+        "x": 850.3181762695312,
+        "y": 553.5455322265625,
+        "wires": []
+    },
+    {
+        "id": "437ae7a2.4fcc88",
+        "type": "json",
+        "z": "f3a9ff5d.b410c8",
+        "name": "",
+        "pretty": false,
+        "x": 671,
+        "y": 554,
+        "wires": [
+            [
+                "6a48d6fd.1264e"
+            ]
+        ]
+    },
+    {
+        "id": "32c53ee1.71e61a",
+        "type": "change",
+        "z": "f3a9ff5d.b410c8",
+        "name": "SQL generator",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "select * from (select * from RES order by ROWID desc limit 20)",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 316,
+        "y": 554,
+        "wires": [
+            [
+                "8b82b1c4.e674a"
+            ]
+        ]
+    },
+    {
+        "id": "f2bf1064.840ad",
+        "type": "function",
+        "z": "f3a9ff5d.b410c8",
+        "name": "Query serializer",
+        "func": "var data = msg.payload;\nvar msgArray = [];\nfor (i = 0, len = data.length; i < len; i++) {\n    newMsg = {\"payload\": data[i]};\n    msgArray.push(newMsg);\n} \nreturn [ msgArray ];",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 513.5,
+        "y": 465,
+        "wires": [
+            [
+                "6b0c132b.68ad74"
+            ]
+        ]
+    },
+    {
+        "id": "2a9be27.b9f019e",
+        "type": "freeboard",
+        "z": "f3a9ff5d.b410c8",
+        "name": "fb",
+        "x": 979.7666320800781,
+        "y": 150.39999389648438,
+        "wires": []
+    },
+    {
+        "id": "b543927c.9d1588",
+        "type": "ui_group",
+        "z": "",
+        "name": "Resources output total",
+        "tab": "7f16dc26.efac94",
+        "order": 1,
+        "disp": false,
+        "width": "8"
+    },
+    {
+        "id": "52ce17db.21351",
+        "type": "ui_group",
+        "z": "",
+        "name": "Resources output history",
+        "tab": "7f16dc26.efac94",
+        "order": 2,
+        "disp": false,
+        "width": "12"
+    },
+    {
+        "id": "1462c62f.799e42",
+        "type": "ui_group",
+        "z": "",
+        "name": "Resources text display",
+        "tab": "7f16dc26.efac94",
+        "order": 3,
+        "disp": false,
+        "width": "6"
+    },
+    {
+        "id": "4a9cc685.c98a2",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "C:\\SQLlite\\NodeRed.db"
+    },
+    {
+        "id": "7f16dc26.efac94",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Test Dashboard",
+        "icon": "dashboard",
+        "order": 2
+    }
+]
